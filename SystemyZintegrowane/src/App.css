@@ -1,42 +1,50 @@
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
+/* Stylizacja tabel i pól w ciemnym motywie */
+.simulation-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+  background-color: #333;
+  box-shadow: 0 0 5px rgba(0,0,0,0.5);
+}
+
+.simulation-table th,
+.simulation-table td {
+  border: 1px solid #555;
+  padding: 8px;
   text-align: center;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+.simulation-table th {
+  background-color: #444;
 }
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.simulation-table input {
+  width: 70px;
+  padding: 4px;
+  background-color: #555;
+  border: none;
+  color: #ddd;
+  text-align: right;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
+.parametr-container {
+  background-color: #333;
+  padding: 15px;
+  margin-bottom: 20px;
+  border: 1px solid #555;
+  box-shadow: 0 0 5px rgba(0,0,0,0.5);
 }
 
-.card {
-  padding: 2em;
+.parametr-fields {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
 }
 
-.read-the-docs {
-  color: #888;
+.parametr-fields div {
+  margin-bottom: 10px;
+}
+
+.parametr-fields label {
+  color: #ddd;
 }
