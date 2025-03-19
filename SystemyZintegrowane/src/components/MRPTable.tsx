@@ -85,17 +85,15 @@ const MRPTable: React.FC<MRPTableProps> = ({
   };
 
   return (
-    <div className="table-container">
+    <div className="table-container py-10">
       <h3>{itemName} (BOM Level: {bomLevel})</h3>
-
-      <div className="control-panel">
+      <div className="control-panel flex">
         <p>
           <label>Czas realizacji: </label>
           <input
             type="number"
             value={leadTime}
             onChange={(e) => handleLeadTimeChange(e.target.value)}
-            style={{ width: '60px' }}
           />
         </p>
         <p>
@@ -104,7 +102,7 @@ const MRPTable: React.FC<MRPTableProps> = ({
             type="number"
             value={inventory}
             onChange={(e) => handleInventoryChange(e.target.value)}
-            style={{ width: '60px' }}
+
           />
         </p>
         <p>
@@ -113,7 +111,7 @@ const MRPTable: React.FC<MRPTableProps> = ({
             type="number"
             value={lotSize}
             onChange={(e) => handleLotSizeChange(e.target.value)}
-            style={{ width: '60px' }}
+
           />
         </p>
         <button onClick={handleCalculate}>Oblicz</button>
