@@ -16,6 +16,7 @@ const GHPTable: React.FC<GHPTableProps> = ({
 }) => {
   const [inventory, setInventory] = useState(initialInventory);
   const [leadTime, setLeadTime] = useState(initialLeadTime);
+  const [lotSize, setLotSize] = useState(30);  
   const [demand, setDemand] = useState(Array(periods.length).fill(0)); 
   const [production, setProduction] = useState(Array(periods.length).fill(0));
   const [available, setAvailable] = useState(Array(periods.length).fill(0));
@@ -31,9 +32,7 @@ const GHPTable: React.FC<GHPTableProps> = ({
     let newAvailable = Array(periods.length).fill(0);
     let newProduction = Array(periods.length).fill(0);
 
-    // Ustawienie pierwszego dostępnego zapasu
     newAvailable[0] = inventory;
-
     for (let i = 0; i < periods.length; i++) {
       let required = demand[i];
 
@@ -45,10 +44,11 @@ const GHPTable: React.FC<GHPTableProps> = ({
       if (newAvailable[i] < 0) {
         let orderPeriod = i - leadTime;
 
-        if (orderPeriod >= 0) {
-          let requiredProduction = Math.abs(newAvailable[i]);
-          newProduction[orderPeriod] = requiredProduction;
-          newAvailable[i] += requiredProduction;
+
+        if (orderPeriod >= 0 && newProduction[orderPeriod] === 0) {
+         
+          newProduction[orderPeriod] = lotSize;
+          newAvailable[i] += lotSize;
         }
       }
     }
@@ -78,6 +78,15 @@ const GHPTable: React.FC<GHPTableProps> = ({
             type="number"
             value={inventory}
             onChange={(e) => setInventory(parseInt(e.target.value) || 0)}
+            className="ghp-input"
+          />
+        </label>
+        <label>
+          Wielkość partii:
+          <input
+            type="number"
+            value={lotSize}
+            onChange={(e) => setLotSize(parseInt(e.target.value) || 30)}
             className="ghp-input"
           />
         </label>
