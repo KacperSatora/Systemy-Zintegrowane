@@ -1,5 +1,5 @@
 import { useState } from "react";
-import "../styles/MRPTable.css"; // Import stylów
+import "../styles/MRPTable.css";
 import * as constants from "../constants";
 
 export default function MRPTable({
@@ -10,7 +10,7 @@ export default function MRPTable({
   itemName,
   bomLevel,
   demand,
-  onCalculate, // Callback to pass planned orders to parent
+  onCalculate,
 }: constants.MRPTableProps & {
   demand?: number[];
   onCalculate?: (plannedOrders: number[]) => void;
@@ -44,7 +44,7 @@ export default function MRPTable({
     while (keepGoing) {
       keepGoing = false;
       for (let i = 0; i < periods.length; i++) {
-        const grossRequirement = demand ? demand[i] : 0; // Use demand prop if provided
+        const grossRequirement = demand ? demand[i] : 0;
         const prevProjectedOnHand =
           i === 0 ? inventory : newProjectedOnHand[i - 1];
         newProjectedOnHand[i] =
@@ -73,7 +73,6 @@ export default function MRPTable({
     setPlannedReceipts(newPlannedReceipts);
     setIsCalculated(true);
 
-    // Pass planned orders to parent
     if (onCalculate) {
       onCalculate(newPlannedOrders);
     }

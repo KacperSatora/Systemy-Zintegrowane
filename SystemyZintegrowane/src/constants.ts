@@ -5,12 +5,8 @@ export interface GHPTableProps {
   itemName: string;
 }
 
-export interface MRPTableProps {
-    periods: number[];
-    initialInventory: number;
-    initialLeadTime: number;
+export interface MRPTableProps extends GHPTableProps {
     initialLotSize: number;
-    itemName: string;
     bomLevel: number;
   }
 

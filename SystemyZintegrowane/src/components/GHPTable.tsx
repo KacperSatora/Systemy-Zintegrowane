@@ -7,7 +7,7 @@ export default function GHPTable({
   initialInventory,
   initialLeadTime,
   itemName,
-  onCalculate, // Callback to pass production to parent
+  onCalculate,
 }: constants.GHPTableProps & { onCalculate: (production: number[]) => void }) {
   const [inventory, setInventory] = useState(initialInventory);
   const [leadTime, setLeadTime] = useState(initialLeadTime);
@@ -24,8 +24,8 @@ export default function GHPTable({
   };
 
   const handleCalculate = () => {
-    const newAvailable = Array(periods.length).fill(0);
-    const newProduction = Array(periods.length).fill(0);
+    const newAvailable = Array(periods.length);
+    const newProduction = Array(periods.length);
 
     newAvailable[0] = inventory;
     for (let i = 0; i < periods.length; i++) {
@@ -35,7 +35,6 @@ export default function GHPTable({
         newAvailable[i] = newAvailable[i - 1] + newProduction[i] - required;
       }
 
-      // Jeśli zapas spada poniżej 0, produkcja jest wyzwalana
       if (newAvailable[i] < 0) {
         const orderPeriod = i - leadTime;
 
@@ -50,14 +49,12 @@ export default function GHPTable({
     setProduction(newProduction);
     setIsCalculated(true);
 
-    // Pass production to parent
     onCalculate(newProduction);
   };
 
   return (
     <div className="ghp-container">
       <h3 className="ghp-title">{itemName} - GHP</h3>
-
       <div className="ghp-controls">
         <label>
           Czas realizacji:

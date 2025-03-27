@@ -27,7 +27,7 @@ export default function App() {
         initialInventory={constants.defaultGHP.initialInventory}
         initialLeadTime={constants.defaultGHP.initialLeadTime}
         itemName={constants.defaultGHP.itemName}
-        onCalculate={(production) => setGhpProduction(production)} // Callback to update production
+        onCalculate={(production) => setGhpProduction(production)}
       />
 
       <MRPTable
