@@ -1,23 +1,18 @@
-import { useState } from 'react';
-import '../styles/GHPTable.css';
+import { useState } from "react";
+import * as constants from "../constants";
+import "../styles/GHPTable.css";
 
-interface GHPTableProps {
-  periods: number[];
-  initialInventory: number;
-  initialLeadTime: number;
-  itemName: string;
-}
-
-const GHPTable: React.FC<GHPTableProps> = ({
+export default function GHPTable({
   periods,
   initialInventory,
   initialLeadTime,
-  itemName
-}) => {
+  itemName,
+  onCalculate, // Callback to pass production to parent
+}: constants.GHPTableProps & { onCalculate: (production: number[]) => void }) {
   const [inventory, setInventory] = useState(initialInventory);
   const [leadTime, setLeadTime] = useState(initialLeadTime);
-  const [lotSize, setLotSize] = useState(30);  
-  const [demand, setDemand] = useState(Array(periods.length).fill(0)); 
+  const [lotSize, setLotSize] = useState(30);
+  const [demand, setDemand] = useState(Array(periods.length).fill(0));
   const [production, setProduction] = useState(Array(periods.length).fill(0));
   const [available, setAvailable] = useState(Array(periods.length).fill(0));
   const [isCalculated, setIsCalculated] = useState(false);
@@ -29,12 +24,12 @@ const GHPTable: React.FC<GHPTableProps> = ({
   };
 
   const handleCalculate = () => {
-    let newAvailable = Array(periods.length).fill(0);
-    let newProduction = Array(periods.length).fill(0);
+    const newAvailable = Array(periods.length).fill(0);
+    const newProduction = Array(periods.length).fill(0);
 
     newAvailable[0] = inventory;
     for (let i = 0; i < periods.length; i++) {
-      let required = demand[i];
+      const required = demand[i];
 
       if (i > 0) {
         newAvailable[i] = newAvailable[i - 1] + newProduction[i] - required;
@@ -42,11 +37,9 @@ const GHPTable: React.FC<GHPTableProps> = ({
 
       // Jeśli zapas spada poniżej 0, produkcja jest wyzwalana
       if (newAvailable[i] < 0) {
-        let orderPeriod = i - leadTime;
-
+        const orderPeriod = i - leadTime;
 
         if (orderPeriod >= 0 && newProduction[orderPeriod] === 0) {
-         
           newProduction[orderPeriod] = lotSize;
           newAvailable[i] += lotSize;
         }
@@ -56,6 +49,9 @@ const GHPTable: React.FC<GHPTableProps> = ({
     setAvailable(newAvailable);
     setProduction(newProduction);
     setIsCalculated(true);
+
+    // Pass production to parent
+    onCalculate(newProduction);
   };
 
   return (
@@ -112,7 +108,9 @@ const GHPTable: React.FC<GHPTableProps> = ({
                 <input
                   type="number"
                   value={d}
-                  onChange={(e) => handleDemandChange(parseInt(e.target.value) || 0, index)}
+                  onChange={(e) =>
+                    handleDemandChange(parseInt(e.target.value) || 0, index)
+                  }
                   className="ghp-input"
                 />
               </td>
@@ -129,7 +127,7 @@ const GHPTable: React.FC<GHPTableProps> = ({
               <tr>
                 <td>Produkcja</td>
                 {production.map((p, index) => (
-                  <td key={index}>{p || ''}</td>
+                  <td key={index}>{p || ""}</td>
                 ))}
               </tr>
             </>
@@ -138,6 +136,4 @@ const GHPTable: React.FC<GHPTableProps> = ({
       </table>
     </div>
   );
-};
-
-export default GHPTable;
+}

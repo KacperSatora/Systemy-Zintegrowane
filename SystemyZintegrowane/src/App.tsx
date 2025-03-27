@@ -1,57 +1,77 @@
-import { useState } from 'react';
-import './App.css';
-import MRPTable from './components/MRPTable';
-import GHPTable from './components/GHPTable';
+import * as constants from "./constants";
+import "./App.css";
+import MRPTable from "./components/MRPTable";
+import GHPTable from "./components/GHPTable";
+import { useState } from "react";
 
-function App() {
-  const [periods, setPeriods] = useState([1, 2, 3, 4, 5, 6]);
-  
+export default function App() {
+  const periods = constants.PERIODS;
+
+  const [ghpProduction, setGhpProduction] = useState(
+    Array(periods.length).fill(0)
+  );
+  const [korpusDemand, setKorpusDemand] = useState(
+    Array(periods.length).fill(0)
+  );
+  const [wieczkoDemand, setWieczkoDemand] = useState(
+    Array(periods.length).fill(0)
+  );
+  const [zawiasyDemand, setZawiasyDemand] = useState(
+    Array(periods.length).fill(0)
+  );
+
   return (
-    
     <div className="container">
-      <GHPTable 
-      periods={periods} 
-      initialInventory={50} 
-      initialLeadTime={2} 
-      itemName="Szkatułka" />
+      <GHPTable
+        periods={periods}
+        initialInventory={constants.defaultGHP.initialInventory}
+        initialLeadTime={constants.defaultGHP.initialLeadTime}
+        itemName={constants.defaultGHP.itemName}
+        onCalculate={(production) => setGhpProduction(production)} // Callback to update production
+      />
 
-      <MRPTable 
-        periods={periods} 
-        initialInventory={30} 
-        initialLeadTime={1} 
-        initialLotSize={80} 
+      <MRPTable
+        periods={periods}
+        initialInventory={30}
+        initialLeadTime={1}
+        initialLotSize={80}
         itemName="Korpus"
         bomLevel={1}
+        demand={ghpProduction}
+        onCalculate={(plannedOrders) => setKorpusDemand(plannedOrders)}
       />
 
-      <MRPTable 
-        periods={periods} 
-        initialInventory={40} 
-        initialLeadTime={1} 
-        initialLotSize={100} 
+      <MRPTable
+        periods={periods}
+        initialInventory={40}
+        initialLeadTime={1}
+        initialLotSize={100}
         itemName="Wieczko"
         bomLevel={1}
+        demand={korpusDemand}
+        onCalculate={(plannedOrders) => setWieczkoDemand(plannedOrders)}
       />
 
-      <MRPTable 
-        periods={periods} 
-        initialInventory={22} 
-        initialLeadTime={3} 
-        initialLotSize={40} 
+      <MRPTable
+        periods={periods}
+        initialInventory={22}
+        initialLeadTime={3}
+        initialLotSize={40}
         itemName="Zawiasy"
         bomLevel={2}
+        demand={wieczkoDemand}
+        onCalculate={(plannedOrders) => setZawiasyDemand(plannedOrders)}
       />
 
-       <MRPTable 
-        periods={periods} 
-        initialInventory={22} 
-        initialLeadTime={2} 
-        initialLotSize={500} 
+      <MRPTable
+        periods={periods}
+        initialInventory={22}
+        initialLeadTime={2}
+        initialLotSize={500}
         itemName="Drewno"
         bomLevel={2}
-      />       
+        demand={zawiasyDemand}
+      />
     </div>
   );
 }
-
-export default App;
