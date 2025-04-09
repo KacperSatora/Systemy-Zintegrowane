@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "../styles/MRPTable.css";
-import * as constants from "../constants";
+import calculateMRP from "./MRPLogic"
+import { MRPTableProps } from "../constants";
 
 export default function MRPTable({
   periods,
@@ -11,71 +12,45 @@ export default function MRPTable({
   bomLevel,
   demand,
   onCalculate,
-}: constants.MRPTableProps & {
-  demand?: number[];
-  onCalculate?: (plannedOrders: number[]) => void;
-}) {
-  const [inventory, setInventory] = useState(initialInventory);
-  const [leadTime, setLeadTime] = useState(initialLeadTime);
-  const [lotSize, setLotSize] = useState(initialLotSize);
-  const [projectedOnHand, setProjectedOnHand] = useState(
-    Array(periods.length).fill(0)
-  );
-  const [netRequirements, setNetRequirements] = useState(
-    Array(periods.length).fill(0)
-  );
-  const [plannedOrders, setPlannedOrders] = useState(
-    Array(periods.length).fill(0)
-  );
-  const [plannedReceipts, setPlannedReceipts] = useState(
-    Array(periods.length).fill(0)
-  );
+}: MRPTableProps & { onCalculate?: (plannedOrders: number[]) => void }) {
+  const [projectedOnHand, setProjectedOnHand] = useState<number[]>([]);
+  const [netRequirements, setNetRequirements] = useState<number[]>([]);
+  const [plannedOrders, setPlannedOrders] = useState<number[]>([]);
+  const [plannedReceipts, setPlannedReceipts] = useState<number[]>([]);
   const [isCalculated, setIsCalculated] = useState(false);
 
-  const handleCalculate = () => {
-    const newProjectedOnHand = Array(periods.length).fill(0);
-    newProjectedOnHand[0] = inventory;
+  useEffect(() => {
+    if (!demand || demand.length === 0) return;
 
-    const newNetRequirements = Array(periods.length).fill(0);
-    const newPlannedOrders = Array(periods.length).fill(0);
-    const newPlannedReceipts = Array(periods.length).fill(0);
+    const result = calculateMRP({
+      periods: periods.map(Number),
+      initialInventory,
+      initialLeadTime,
+      initialLotSize,
+      demand,
+    });
 
-    let keepGoing = true;
-    while (keepGoing) {
-      keepGoing = false;
-      for (let i = 0; i < periods.length; i++) {
-        const grossRequirement = demand ? demand[i] : 0;
-        const prevProjectedOnHand =
-          i === 0 ? inventory : newProjectedOnHand[i - 1];
-        newProjectedOnHand[i] =
-          prevProjectedOnHand + newPlannedReceipts[i] - grossRequirement;
-
-        if (newProjectedOnHand[i] < 0) {
-          newNetRequirements[i] = Math.abs(newProjectedOnHand[i]);
-          newProjectedOnHand[i] = 0;
-
-          const orderPeriod = i - leadTime;
-          if (orderPeriod >= 0) {
-            newPlannedOrders[orderPeriod] =
-              Math.ceil(newNetRequirements[i] / lotSize) * lotSize;
-            newPlannedReceipts[i] = newPlannedOrders[orderPeriod];
-          }
-
-          keepGoing = true;
-          break;
-        }
-      }
-    }
-
-    setProjectedOnHand(newProjectedOnHand);
-    setNetRequirements(newNetRequirements);
-    setPlannedOrders(newPlannedOrders);
-    setPlannedReceipts(newPlannedReceipts);
+    setProjectedOnHand(result.projectedOnHand);
+    setNetRequirements(result.netRequirements);
+    setPlannedOrders(result.plannedOrders);
+    setPlannedReceipts(result.plannedReceipts);
     setIsCalculated(true);
 
-    if (onCalculate) {
-      onCalculate(newPlannedOrders);
+    if (onCalculate) onCalculate(result.plannedOrders);
+  }, [demand, periods, initialInventory, initialLeadTime, initialLotSize]);
+
+  const getCellClass = (value: number, isPlannedReceipt: boolean, index: number) => {
+    // Kolorowanie na czerwono (ujemna wartość) - przygotowane nie wdrożone
+    if (value < 0) {
+      return "error-cell";
     }
+
+    //Kolorowanie na żółto (jeżeli planowane przyjęcie wychodzi poza skalę) - przygotowane nie wdrożone, nie wiem jak ten warunek dobrze przekazac
+    if (isPlannedReceipt && plannedOrders[index] === 0 && plannedReceipts[index] > 0) {
+      return "warning-cell";
+    }
+
+    return "";
   };
 
   return (
@@ -83,39 +58,6 @@ export default function MRPTable({
       <h3 className="mrp-title">
         {itemName} (BOM Level: {bomLevel})
       </h3>
-
-      <div className="mrp-controls">
-        <label>
-          Czas realizacji:
-          <input
-            type="number"
-            value={leadTime}
-            onChange={(e) => setLeadTime(parseInt(e.target.value) || 0)}
-            className="mrp-input"
-          />
-        </label>
-        <label>
-          Na stanie:
-          <input
-            type="number"
-            value={inventory}
-            onChange={(e) => setInventory(parseInt(e.target.value) || 0)}
-            className="mrp-input"
-          />
-        </label>
-        <label>
-          Wielkość partii:
-          <input
-            type="number"
-            value={lotSize}
-            onChange={(e) => setLotSize(parseInt(e.target.value) || 0)}
-            className="mrp-input"
-          />
-        </label>
-        <button onClick={handleCalculate} className="mrp-button">
-          Oblicz
-        </button>
-      </div>
 
       <table className="mrp-table">
         <thead>
@@ -130,7 +72,7 @@ export default function MRPTable({
           <tr>
             <td>Przewidywany Popyt</td>
             {demand?.map((d, index) => (
-              <td key={index}>{d}</td>
+              <td key={index} className={getCellClass(d, false, index)}>{d}</td>
             ))}
           </tr>
           {isCalculated && (
@@ -138,25 +80,25 @@ export default function MRPTable({
               <tr>
                 <td>Przewidywane na stanie</td>
                 {projectedOnHand.map((ph, index) => (
-                  <td key={index}>{ph}</td>
+                  <td key={index} className={getCellClass(ph, false, index)}>{ph}</td>
                 ))}
               </tr>
               <tr>
                 <td>Zapotrzebowanie netto</td>
                 {netRequirements.map((nr, index) => (
-                  <td key={index}>{nr}</td>
+                  <td key={index} className={getCellClass(nr, false, index)}>{nr}</td>
                 ))}
               </tr>
               <tr>
                 <td>Planowane zamówienia</td>
                 {plannedOrders.map((po, index) => (
-                  <td key={index}>{po || ""}</td>
+                  <td key={index} className={getCellClass(po, false, index)}>{po || ""}</td>
                 ))}
               </tr>
               <tr>
                 <td>Planowane przyjęcia</td>
                 {plannedReceipts.map((pr, index) => (
-                  <td key={index}>{pr || ""}</td>
+                  <td key={index} className={getCellClass(pr, true, index)}>{pr || ""}</td>
                 ))}
               </tr>
             </>

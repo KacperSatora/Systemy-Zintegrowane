@@ -16,9 +16,7 @@ export default function App() {
   const [wieczkoDemand, setWieczkoDemand] = useState(
     Array(periods.length).fill(0)
   );
-  const [zawiasyDemand, setZawiasyDemand] = useState(
-    Array(periods.length).fill(0)
-  );
+  const [ghpCalculated, setGhpCalculated] = useState(false);
 
   return (
     <div className="container">
@@ -27,51 +25,66 @@ export default function App() {
         initialInventory={constants.defaultGHP.initialInventory}
         initialLeadTime={constants.defaultGHP.initialLeadTime}
         itemName={constants.defaultGHP.itemName}
-        onCalculate={(production) => setGhpProduction(production)}
+        onCalculate={(production) => {
+          setGhpProduction(production);
+          setGhpCalculated(true);
+        }}
+        onReset={() => {
+          setGhpCalculated(false);
+        }}
       />
 
-      <MRPTable
-        periods={periods}
-        initialInventory={30}
-        initialLeadTime={1}
-        initialLotSize={80}
-        itemName="Korpus"
-        bomLevel={1}
-        demand={ghpProduction}
-        onCalculate={(plannedOrders) => setKorpusDemand(plannedOrders)}
-      />
+      {ghpCalculated && (
+        <>
+          {/* KORPUS */}
+          <MRPTable
+            periods={periods}
+            itemName="Korpus"
+            bomLevel={1}
+            demand={ghpProduction.map((p) => p * 5)}
+            onCalculate={(plannedOrders) => setKorpusDemand(plannedOrders)}
+            initialLotSize={50}
+            initialInventory={10}
+            initialLeadTime={1}
+          />
 
-      <MRPTable
-        periods={periods}
-        initialInventory={40}
-        initialLeadTime={1}
-        initialLotSize={100}
-        itemName="Wieczko"
-        bomLevel={1}
-        demand={korpusDemand}
-        onCalculate={(plannedOrders) => setWieczkoDemand(plannedOrders)}
-      />
+          {/* WIECZKO */}
+          <MRPTable
+            periods={periods}
+            itemName="Wieczko"
+            bomLevel={1}
+            demand={ghpProduction.map((p) => p * 1)}
+            onCalculate={(plannedOrders) => setWieczkoDemand(plannedOrders)}
+            initialLotSize={50}
+            initialInventory={5}
+            initialLeadTime={1}
+          />
 
-      <MRPTable
-        periods={periods}
-        initialInventory={22}
-        initialLeadTime={3}
-        initialLotSize={40}
-        itemName="Zawiasy"
-        bomLevel={2}
-        demand={wieczkoDemand}
-        onCalculate={(plannedOrders) => setZawiasyDemand(plannedOrders)}
-      />
+          {/* ZAWIASY */}
+          <MRPTable
+            periods={periods}
+            itemName="Zawiasy"
+            bomLevel={2}
+            demand={ghpProduction.map((p) => p * 2)}
+            initialLotSize={50}
+            initialInventory={20}
+            initialLeadTime={1}
+          />
 
-      <MRPTable
-        periods={periods}
-        initialInventory={22}
-        initialLeadTime={2}
-        initialLotSize={500}
-        itemName="Drewno"
-        bomLevel={2}
-        demand={zawiasyDemand}
-      />
+          {/* DREWNO */}
+          <MRPTable
+            periods={periods}
+            itemName="Drewno"
+            bomLevel={2}
+            demand={korpusDemand.map(
+              (k, i) => k + (wieczkoDemand[i] || 0)
+            )}
+            initialLotSize={100}
+            initialInventory={30}
+            initialLeadTime={2}
+          />
+        </>
+      )}
     </div>
   );
 }
