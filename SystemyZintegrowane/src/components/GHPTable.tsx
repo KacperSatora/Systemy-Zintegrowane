@@ -1,6 +1,6 @@
 import { useState } from "react";
 import * as constants from "../constants";
-import "../styles/GHPTable.css";
+import "../index.css";
 
 export default function GHPTable({
   periods,
@@ -13,7 +13,6 @@ export default function GHPTable({
   onCalculate: (production: number[]) => void;
   onReset: () => void;
 }) {
-
   const [inventory, setInventory] = useState(initialInventory);
   const [leadTime, setLeadTime] = useState(initialLeadTime);
   const [lotSize, setLotSize] = useState(10);
@@ -62,9 +61,9 @@ export default function GHPTable({
   };
 
   return (
-    <div className="ghp-container">
-      <h3 className="ghp-title">{itemName} - GHP</h3>
-      <div className="ghp-controls">
+    <div className="table-container">
+      <h3 className="table-title">{itemName} - GHP</h3>
+      <div className="table-controls">
         <label>
           Czas realizacji:
           <input
@@ -72,7 +71,7 @@ export default function GHPTable({
             value={leadTime}
             onChange={(e) => {
               setLeadTime(parseInt(e.target.value) || 0);
-              onReset(); // resetujemy MRP
+              onReset();
             }}
           />
         </label>
@@ -81,10 +80,10 @@ export default function GHPTable({
           <input
             type="number"
             value={inventory}
-            onChange={(e) => {setInventory(parseInt(e.target.value) || 0);
-            onReset();  
+            onChange={(e) => {
+              setInventory(parseInt(e.target.value) || 0);
+              onReset();
             }}
-            className="ghp-input"
           />
         </label>
         <label>
@@ -92,18 +91,16 @@ export default function GHPTable({
           <input
             type="number"
             value={lotSize}
-            onChange={(e) => {setLotSize(parseInt(e.target.value) || 10);
-            onReset;
+            onChange={(e) => {
+              setLotSize(parseInt(e.target.value) || 10);
+              onReset();
             }}
-            className="ghp-input"
           />
         </label>
-        <button onClick={handleCalculate} className="ghp-button">
-          Oblicz
-        </button>
+        <button onClick={handleCalculate}>Oblicz</button>
       </div>
 
-      <table className="ghp-table">
+      <table className="table">
         <thead>
           <tr>
             <th>Okres</th>
@@ -123,7 +120,6 @@ export default function GHPTable({
                   onChange={(e) =>
                     handleDemandChange(parseInt(e.target.value) || 0, index)
                   }
-                  className="ghp-input"
                 />
               </td>
             ))}

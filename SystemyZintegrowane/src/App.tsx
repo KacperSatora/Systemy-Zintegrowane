@@ -41,7 +41,7 @@ export default function App() {
             periods={periods}
             itemName="Korpus"
             bomLevel={1}
-            demand={ghpProduction.map((p) => p * 5)}
+            demand={ghpProduction.map((p) => p)}
             onCalculate={(plannedOrders) => setKorpusDemand(plannedOrders)}
             initialLotSize={50}
             initialInventory={10}
