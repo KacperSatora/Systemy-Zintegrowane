@@ -21,3 +21,103 @@ body {
   min-width: 320px;
   min-height: 100vh;
 }
+
+/* Stylizacja kontenera tabeli */
+.table-container {
+  margin: 20px auto;
+  padding: 20px;
+  max-width: 1000px;
+  background-color: #1e1e1e; /* Ciemne tło */
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+  color: #ffffff; /* Jasny tekst */
+}
+
+/* Tytuł tabeli */
+.table-title {
+  text-align: center;
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 20px;
+  color: #ffffff;
+}
+
+/* Stylizacja formularza */
+.table-controls {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  gap: 10px;
+}
+
+.table-controls label {
+  display: flex;
+  flex-direction: column;
+  font-size: 0.9rem;
+  color: #cccccc; /* Jasnoszary tekst */
+}
+
+.table-controls input {
+  padding: 8px;
+  font-size: 1rem;
+  border: 1px solid #444444; /* Szary obramowanie */
+  border-radius: 4px;
+  background-color: #2e2e2e; /* Ciemne tło */
+  color: #ffffff; /* Jasny tekst */
+  margin-top: 5px;
+}
+
+.table-controls button {
+  padding: 10px 20px;
+  font-size: 1rem;
+  color: #ffffff;
+  background-color: #007bff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.table-controls button:hover {
+  background-color: #0056b3;
+}
+
+/* Stylizacja tabeli */
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+.table th,
+.table td {
+  border: 1px solid #444444; /* Szary obramowanie */
+  padding: 10px;
+  text-align: center;
+  font-size: 0.9rem;
+  color: #ffffff; /* Jasny tekst */
+}
+
+.table th {
+  background-color: #333333; /* Ciemnoszare tło */
+  font-weight: bold;
+}
+
+.table tr:nth-child(even) {
+  background-color: #2e2e2e; /* Ciemnoszare tło dla parzystych wierszy */
+}
+
+.table tr:hover {
+  background-color: #444444; /* Jaśniejsze tło przy najechaniu */
+}
+
+.table input {
+  width: 100%;
+  padding: 5px;
+  font-size: 0.9rem;
+  text-align: center;
+  border: 1px solid #444444;
+  border-radius: 4px;
+  background-color: #2e2e2e;
+  color: #ffffff;
+}
