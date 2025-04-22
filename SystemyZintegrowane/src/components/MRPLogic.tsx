@@ -6,45 +6,36 @@ export default function calculateMRP({
   initialLeadTime,
   initialLotSize,
   demand = [],
-}: MRPLogicProps) {
+  manualPlannedReceipts = [],
+}: MRPLogicProps & { manualPlannedReceipts?: number[] }) {
   const length = periods.length;
   const projectedOnHand = Array(length).fill(0);
   const netRequirements = Array(length).fill(0);
   const plannedOrders = Array(length).fill(0);
   const plannedReceipts = Array(length).fill(0);
 
-  const frozenNetRequirements = Array(length).fill(false);
   let inventory = initialInventory;
-  let changed = true;
 
-  while (changed) {
-    changed = false;
+  for (let i = 0; i < length; i++) {
+    const grossRequirement = demand[i] || 0;
+    const prevOnHand = i === 0 ? inventory : projectedOnHand[i - 1];
 
-    for (let i = 0; i < length; i++) {
-      const grossRequirement = demand[i] || 0;
-      const prevOnHand = i === 0 ? inventory : projectedOnHand[i - 1];
-      projectedOnHand[i] = prevOnHand + plannedReceipts[i] - grossRequirement;
+    // Uwzględniamy ręczne dane tylko w obliczeniach
+    const manualReceipt = manualPlannedReceipts[i] || 0;
 
-      if (projectedOnHand[i] < 0 && !frozenNetRequirements[i]) {
-        const shortage = Math.abs(projectedOnHand[i]);
-        netRequirements[i] = shortage;
-        frozenNetRequirements[i] = true;
+    projectedOnHand[i] = prevOnHand + manualReceipt - grossRequirement;
 
-        const orderQty = initialLotSize;
+    if (projectedOnHand[i] < 0) {
+      const shortage = Math.abs(projectedOnHand[i]);
+      netRequirements[i] = shortage;
 
-        const orderPeriod = i - initialLeadTime;
+      const orderQty = initialLotSize;
+      const orderPeriod = i - initialLeadTime; // Przesunięcie w lewo o czas realizacji
 
-        if (orderPeriod >= 0) {
-          // Zamówienie w poprzednich okresach (gdzie czas realizacji pozwala)
-          plannedOrders[orderPeriod] = orderQty;
-          plannedReceipts[i] = orderQty;
-        } else {
-          // Jeżeli czas realizacji wykracza poza dostępne okresy
-          plannedReceipts[i] = orderQty;
-        }
-
-        changed = true;
-        break;
+      if (orderPeriod >= 0) {
+        plannedOrders[orderPeriod] += orderQty; // Dodajemy zamówienie w odpowiednim okresie
+        plannedReceipts[i] += orderQty; // Przyjęcie zamówienia w bieżącym okresie
+        projectedOnHand[i] += orderQty;
       }
     }
   }

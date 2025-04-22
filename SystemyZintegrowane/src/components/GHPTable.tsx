@@ -129,7 +129,7 @@ export default function GHPTable({
               <tr>
                 <td>Dostępne</td>
                 {available.map((a, index) => (
-                  <td key={index}>{a || ""}</td>
+                  <td key={index}>{a !== null && a !== undefined ? a : 0}</td>
                 ))}
               </tr>
               <tr>

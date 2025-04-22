@@ -17,35 +17,42 @@ export default function MRPTable({
   const [netRequirements, setNetRequirements] = useState<number[]>([]);
   const [plannedOrders, setPlannedOrders] = useState<number[]>([]);
   const [plannedReceipts, setPlannedReceipts] = useState<number[]>([]);
+  const [manualPlannedReceipts, setManualPlannedReceipts] = useState<number[]>(
+    Array(periods.length).fill(0)
+  );
   const [isCalculated, setIsCalculated] = useState(false);
   const [leadTime, setLeadTime] = useState(initialLeadTime);
   const [lotSize, setLotSize] = useState(initialLotSize);
   const [inventory, setInventory] = useState(initialInventory);
 
   useEffect(() => {
-    if (!demand || demand.length === 0) return;
-
     const result = calculateMRP({
       periods: periods.map(Number),
       initialInventory: inventory,
       initialLeadTime: leadTime,
       initialLotSize: lotSize,
       demand,
+      manualPlannedReceipts: manualPlannedReceipts.map((value) =>
+        value !== 0 ? value : 0 // Replace undefined with 0
+      ),
     });
 
     setProjectedOnHand(result.projectedOnHand);
     setNetRequirements(result.netRequirements);
     setPlannedOrders(result.plannedOrders);
+
+    // Inicjalizujemy drugi wiersz wartościami z algorytmu
     setPlannedReceipts(result.plannedReceipts);
+
     setIsCalculated(true);
 
     if (onCalculate) onCalculate(result.plannedOrders);
   }, [demand, periods, inventory, leadTime, lotSize]);
 
   const handlePlannedReceiptsChange = (value: number, index: number) => {
-    const newPlannedReceipts = [...plannedReceipts];
-    newPlannedReceipts[index] = value >= 0 ? value : 0; // Zapobiegamy wartościom ujemnym
-    setPlannedReceipts(newPlannedReceipts);
+    const newManualPlannedReceipts = [...manualPlannedReceipts];
+    newManualPlannedReceipts[index] = value >= 0 ? value : 0; // Zapobiegamy wartościom ujemnym
+    setManualPlannedReceipts(newManualPlannedReceipts);
   };
 
   return (
@@ -103,7 +110,7 @@ export default function MRPTable({
               <td key={index}>
                 <input
                   type="number"
-                  value={pr || ""}
+                  value={manualPlannedReceipts[index] || pr || ""}
                   onChange={(e) =>
                     handlePlannedReceiptsChange(parseInt(e.target.value) || 0, index)
                   }
