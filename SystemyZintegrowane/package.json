@@ -1,6 +1,7 @@
 {
   "name": "systemyzintegrowane",
-  "version": "0.0.0",
+  "version": "0.3.0",
+  "description": "Systemy Zintegrowane - Aplikacja algorytmu MGP i MRP",
   "private": true,
   "type": "module",
   "main": "main.cjs",

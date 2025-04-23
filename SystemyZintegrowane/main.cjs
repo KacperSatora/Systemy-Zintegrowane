@@ -13,7 +13,6 @@ function createWindow() {
 
   // Wczytaj zbudowaną aplikację (Vite → dist)
   win.loadFile(path.join(__dirname, 'dist', 'index.html'))
-  win.webContents.openDevTools();
 
 }
 
