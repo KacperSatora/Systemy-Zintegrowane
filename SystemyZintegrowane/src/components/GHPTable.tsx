@@ -15,7 +15,6 @@ export default function GHPTable({
 }) {
   const [inventory, setInventory] = useState(initialInventory);
   const [leadTime, setLeadTime] = useState(initialLeadTime);
-  const [lotSize, setLotSize] = useState(10);
   const [demand, setDemand] = useState(Array(periods.length).fill(0));
   const [production, setProduction] = useState(Array(periods.length).fill(0));
   const [available, setAvailable] = useState(Array(periods.length).fill(0));
@@ -36,8 +35,9 @@ export default function GHPTable({
     if (newAvailable[0] < 0) {
       const orderPeriod = 0 - leadTime;
       if (orderPeriod >= 0) {
-        newProduction[orderPeriod] = lotSize;
-        newAvailable[0] += lotSize;
+        const needed = -newAvailable[0];
+        newProduction[orderPeriod] = needed;
+        newAvailable[0] = 0;
       }
     }
 
@@ -47,8 +47,9 @@ export default function GHPTable({
       if (newAvailable[i] < 0) {
         const orderPeriod = i - leadTime;
         if (orderPeriod >= 0 && newProduction[orderPeriod] === 0) {
-          newProduction[orderPeriod] = lotSize;
-          newAvailable[i] += lotSize;
+          const needed = -newAvailable[i];
+          newProduction[orderPeriod] = needed;
+          newAvailable[i] = 0;
         }
       }
     }
@@ -86,17 +87,6 @@ export default function GHPTable({
             }}
           />
         </label>
-        <label>
-          Wielkość partii:
-          <input
-            type="number"
-            value={lotSize}
-            onChange={(e) => {
-              setLotSize(parseInt(e.target.value) || 10);
-              onReset();
-            }}
-          />
-        </label>
         <button onClick={handleCalculate}>Oblicz</button>
       </div>
 
@@ -129,7 +119,7 @@ export default function GHPTable({
               <tr>
                 <td>Dostępne</td>
                 {available.map((a, index) => (
-                  <td key={index}>{a || ""}</td>
+                  <td key={index}>{a !== null && a !== undefined ? a : 0}</td>
                 ))}
               </tr>
               <tr>
